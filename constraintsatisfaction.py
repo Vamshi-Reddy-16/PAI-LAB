@@ -1,27 +1,20 @@
 class ConstraintSatisfactionProblem:
     def __init__(self, words):
-        # Keep letters as entered (lowercase or uppercase)
         self.words = [w.strip() for w in words]
         self.variables = sorted(set("".join(self.words)))
         self.domains = {v: list(range(10)) for v in self.variables}
         self.constraints = {v: [] for v in self.variables}
-
-        # All-different constraint
         for v in self.variables:
             for o in self.variables:
                 if v != o:
                     self.constraints[v].append(
                         lambda var, val, ass, o=o: o not in ass or ass[o] != val
                     )
-
-        # Leading letters cannot be zero
         leads = {w[0] for w in self.words}
         for lead in leads:
             self.constraints[lead].append(lambda v, val, ass: val != 0)
-
     def is_consistent(self, var, val, ass):
         return all(c(var, val, ass) for c in self.constraints[var])
-
     def backtrack(self, ass):
         if len(ass) == len(self.variables):
             if self.check(ass):
@@ -36,10 +29,8 @@ class ConstraintSatisfactionProblem:
                     return res
                 ass.pop(var)
         return None
-
     def word_value(self, word, a):
         return sum(a[ch] * (10 ** i) for i, ch in enumerate(reversed(word)))
-
     def check(self, a):
         total = sum(self.word_value(w, a) for w in self.words[:-1])
         return total == self.word_value(self.words[-1], a)
@@ -51,14 +42,12 @@ for i in range(num_words):
     else:
         w = input(f"Enter result word: ").strip()
     words.append(w)
-
 csp = ConstraintSatisfactionProblem(words)
 solution = csp.backtrack({})
 if solution:
     print("\nAssigned Values:")
     for k in sorted(solution):
         print(f"{k} = {solution[k]}")
-
     print("\nResult:")
     for w in words:
         print(f"{w} = {csp.word_value(w, solution)}")
